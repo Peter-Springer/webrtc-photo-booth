@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import PhotoList from './PhotoList'
 
 class App extends Component {
   constructor(props) {
@@ -7,32 +8,33 @@ class App extends Component {
       width: 320,
       height: 0,
       streaming: false,
-      video: null,
-      canvas: null,
-      photo: null,
-      startbutton: null
+      photos: []
     }
   }
 
   componentDidMount() {
     let video = document.getElementById('video');
     let canvas = document.getElementById('canvas');
-    video.addEventListener('canplay', (ev) => {
+    video.addEventListener('canplay', () => {
       if (!this.state.streaming) {
         this.setState({height: video.videoHeight / (video.videoWidth/this.state.width)})
-
         video.setAttribute('width', this.state.width);
         video.setAttribute('height', this.state.height);
         canvas.setAttribute('width', this.state.width);
         canvas.setAttribute('height', this.state.height);
         this.setState({streaming: true});
       }
-    }, false);
+    });
+  }
+
+  componentDidUpdate() {
+    if (this.state.photos.length < 3) {
+    this.state.streaming && setTimeout(this.takePicture, 10000)
+    }
   }
 
   startStream = () => {
     let video = document.getElementById('video');
-    let startbutton = document.getElementById('startbutton');
     navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     .then((stream) => {
         video.srcObject = stream;
@@ -43,7 +45,7 @@ class App extends Component {
     });
   }
 
-  takepicture = () => {
+  takePicture = () => {
     let canvas = document.getElementById('canvas');
     let context = canvas.getContext('2d');
     let photo = document.getElementById('photo');
@@ -54,21 +56,8 @@ class App extends Component {
       context.drawImage(video, 0, 0, this.state.width, this.state.height);
 
       let data = canvas.toDataURL('image/png');
-      photo.setAttribute('src', data);
-    } else {
-      this.clearphoto();
+      this.setState({photos: [...this.state.photos, data]})
     }
-  }
-
-  clearphoto = () => {
-    let canvas = document.getElementById('canvas');
-    let context = canvas.getContext('2d');
-    let photo = document.getElementById('photo');
-    context.fillStyle = "#AAA";
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    let data = canvas.toDataURL('image/png');
-    photo.setAttribute('src', data);
   }
 
   render() {
@@ -83,11 +72,10 @@ class App extends Component {
               Enter Booth
           </button>
         </div>
-        <canvas hidden={true} id="canvas"></canvas>
+        <canvas hidden={true} id="canvas"/>
         <div className="output">
-          <img id="photo" alt="The screen capture will appear in this box."/>
+          <PhotoList photos={this.state.photos}/>
         </div>
-        <button onClick={this.takepicture}>Take Photo</button>
       </div>
     );
   }
