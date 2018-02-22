@@ -1,13 +1,11 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react'
 
 class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
       width: 320,
-      height: 100,
+      height: 0,
       streaming: false,
       video: null,
       canvas: null,
@@ -32,18 +30,45 @@ class App extends Component {
     }, false);
   }
 
-  startStream() {
+  startStream = () => {
     let video = document.getElementById('video');
-    let photo = document.getElementById('photo');
     let startbutton = document.getElementById('startbutton');
     navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-    .then(function(stream) {
+    .then((stream) => {
         video.srcObject = stream;
         video.play();
     })
-    .catch(function(err) {
+    .catch((err) => {
         console.log("An error occured! " + err);
     });
+  }
+
+  takepicture = () => {
+    let canvas = document.getElementById('canvas');
+    let context = canvas.getContext('2d');
+    let photo = document.getElementById('photo');
+    let video = document.getElementById('video');
+    if (this.state.width && this.state.height) {
+      canvas.width = this.state.width;
+      canvas.height = this.state.height;
+      context.drawImage(video, 0, 0, this.state.width, this.state.height);
+
+      let data = canvas.toDataURL('image/png');
+      photo.setAttribute('src', data);
+    } else {
+      this.clearphoto();
+    }
+  }
+
+  clearphoto = () => {
+    let canvas = document.getElementById('canvas');
+    let context = canvas.getContext('2d');
+    let photo = document.getElementById('photo');
+    context.fillStyle = "#AAA";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    let data = canvas.toDataURL('image/png');
+    photo.setAttribute('src', data);
   }
 
   render() {
@@ -51,13 +76,18 @@ class App extends Component {
       <div className="app">
         <div className="camera">
           <video id="video">Video stream not available.</video>
-          <button id="startbutton" onClick={() => this.startStream()}>Take photo</button>
+          <button
+            id="startbutton"
+            hidden={this.state.streaming}
+            onClick={this.startStream}>
+              Enter Booth
+          </button>
         </div>
-        <canvas id="canvas">
-        </canvas>
+        <canvas hidden={true} id="canvas"></canvas>
         <div className="output">
           <img id="photo" alt="The screen capture will appear in this box."/>
         </div>
+        <button onClick={this.takepicture}>Take Photo</button>
       </div>
     );
   }
