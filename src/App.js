@@ -8,7 +8,8 @@ class App extends Component {
       width: 320,
       height: 0,
       streaming: false,
-      photos: []
+      photos: [],
+      counter: 10
     }
   }
 
@@ -24,13 +25,31 @@ class App extends Component {
         canvas.setAttribute('height', this.state.height);
         this.setState({streaming: true});
       }
-    });
+    })
+      // if (this.state.photos.length < 3 && this.state.streaming) {
+      //     setTimeout(this.takePicture, 10000)
+      // }
+    this.countDown()
   }
 
-  componentDidUpdate() {
-    if (this.state.photos.length < 3) {
-    this.state.streaming && setTimeout(this.takePicture, 10000)
-    }
+  // componentDidUpdate() {
+  //   if (this.state.photos.length < 3) {
+  //   this.state.streaming && setTimeout(this.takePicture, 10000)
+  //   }
+  // }
+
+  countDown = () => {
+      let self = this
+      setInterval(function() {
+        if (self.state.streaming && self.state.counter > 0) {
+        self.setState({counter: self.state.counter - 1})
+      } else if (self.state.counter === 0) {
+        if (self.state.photos.length < 3){
+        setTimeout(self.takePicture, 10000)
+        }
+        self.setState({counter: 10})
+      }
+      }, 1000)
   }
 
   startStream = () => {
@@ -65,6 +84,7 @@ class App extends Component {
       <div className="app">
         <div className="camera">
           <video id="video">Video stream not available.</video>
+          <p>{this.state.counter}</p>
           <button
             id="startbutton"
             hidden={this.state.streaming}
@@ -74,7 +94,7 @@ class App extends Component {
         </div>
         <canvas hidden={true} id="canvas"/>
         <div className="output">
-          <PhotoList photos={this.state.photos}/>
+          <PhotoList photos={this.state.photos} countDown={this.countDown}/>
         </div>
       </div>
     );
