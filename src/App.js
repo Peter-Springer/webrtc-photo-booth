@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import PhotoList from './PhotoList'
 
+const COUNTDOWN = 1
+const NUMBER_OF_PHOTOS = 2
+
 class App extends Component {
   constructor(props) {
     super(props)
@@ -9,16 +12,20 @@ class App extends Component {
       height: 0,
       streaming: false,
       photos: [],
-      counter: 10
+      counter: COUNTDOWN,
     }
   }
 
   componentDidMount() {
-    let video = document.getElementById('video');
-    let canvas = document.getElementById('canvas');
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+
     video.addEventListener('canplay', () => {
       if (!this.state.streaming) {
-        this.setState({height: video.videoHeight / (video.videoWidth/this.state.width)})
+        const height = video.videoHeight / (video.videoWidth/this.state.width)
+
+        this.setState({ height })
+
         video.setAttribute('width', this.state.width);
         video.setAttribute('height', this.state.height);
         canvas.setAttribute('width', this.state.width);
@@ -26,56 +33,48 @@ class App extends Component {
         this.setState({streaming: true});
       }
     })
-      // if (this.state.photos.length < 3 && this.state.streaming) {
-      //     setTimeout(this.takePicture, 10000)
-      // }
+
     this.countDown()
   }
 
-  // componentDidUpdate() {
-  //   if (this.state.photos.length < 3) {
-  //   this.state.streaming && setTimeout(this.takePicture, 10000)
-  //   }
-  // }
-
   countDown = () => {
-      let self = this
-      setInterval(function() {
-        if (self.state.streaming && self.state.counter > 0) {
-        self.setState({counter: self.state.counter - 1})
-      } else if (self.state.counter === 0) {
-        if (self.state.photos.length < 3){
-        setTimeout(self.takePicture, 10000)
-        }
-        self.setState({counter: 10})
+    setInterval(() => {
+      if (this.state.streaming && this.state.counter > 0) {
+        this.setState({ counter: this.state.counter - 1 })
+      } else if (this.state.counter === 0) {
+        if (this.state.photos.length < NUMBER_OF_PHOTOS) this.takePicture()
+        this.setState({ counter: COUNTDOWN })
       }
-      }, 1000)
+    }, 1000)
   }
 
   startStream = () => {
-    let video = document.getElementById('video');
+    const video = document.getElementById('video');
+
     navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-    .then((stream) => {
+      .then((stream) => {
         video.srcObject = stream;
         video.play();
-    })
-    .catch((err) => {
+      })
+      .catch((err) => {
         console.log("An error occured! " + err);
-    });
+      });
   }
 
   takePicture = () => {
-    let canvas = document.getElementById('canvas');
-    let context = canvas.getContext('2d');
-    let photo = document.getElementById('photo');
-    let video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    const photo = document.getElementById('photo');
+    const video = document.getElementById('video');
+
     if (this.state.width && this.state.height) {
       canvas.width = this.state.width;
       canvas.height = this.state.height;
       context.drawImage(video, 0, 0, this.state.width, this.state.height);
 
-      let data = canvas.toDataURL('image/png');
-      this.setState({photos: [...this.state.photos, data]})
+      const data = canvas.toDataURL('image/png');
+
+      this.setState({ photos: [...this.state.photos, data] })
     }
   }
 
@@ -84,11 +83,12 @@ class App extends Component {
       <div className="app">
         <div className="camera">
           <video id="video">Video stream not available.</video>
-          <p>{this.state.counter}</p>
+          <p hidden={!this.state.streaming}>{this.state.counter}</p>
           <button
             id="startbutton"
             hidden={this.state.streaming}
-            onClick={this.startStream}>
+            onClick={this.startStream}
+          >
               Enter Booth
           </button>
         </div>
