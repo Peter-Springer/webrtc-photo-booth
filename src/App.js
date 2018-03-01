@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import PhotoList from './PhotoList'
 
-const COUNTDOWN = 1
-const NUMBER_OF_PHOTOS = 2
+const COUNTDOWN = 5
 
 class App extends Component {
   constructor(props) {
@@ -13,6 +12,8 @@ class App extends Component {
       streaming: false,
       photos: [],
       counter: COUNTDOWN,
+      photoQuantity: 0,
+      errorMessage: '',
     }
   }
 
@@ -42,7 +43,7 @@ class App extends Component {
       if (this.state.streaming && this.state.counter > 0) {
         this.setState({ counter: this.state.counter - 1 })
       } else if (this.state.counter === 0) {
-        if (this.state.photos.length < NUMBER_OF_PHOTOS) this.takePicture()
+        if (this.state.photos.length < this.state.photoQuantity) this.takePicture()
         this.setState({ counter: COUNTDOWN })
       }
     }, 1000)
@@ -57,7 +58,7 @@ class App extends Component {
         video.play();
       })
       .catch((err) => {
-        console.log("An error occured! " + err);
+        console.log('An error occured! ' + err);
       });
   }
 
@@ -77,23 +78,61 @@ class App extends Component {
     }
   }
 
+  validatePhotoQuantity = (e) => {
+    if (e.target.value === '') {
+      this.setState({ errorMessage: '', photoQuantity: '' })
+    }
+    else if (parseInt(e.target.value, 10) > 0 && parseInt(e.target.value, 10) <= 5) {
+        this.setState({
+                        photoQuantity: parseInt(e.target.value, 10),
+                        errorMessage: ''
+                      })
+    } else {
+      this.setState({
+                    photoQuantity: '',
+                    errorMessage: 'Enter a photo quantity between 1 and 5'
+                  })
+    }
+  }
+
   render() {
     return (
-      <div className="app">
-        <div className="camera">
-          <video id="video">Video stream not available.</video>
-          <p hidden={!this.state.streaming}>{this.state.counter}</p>
-          <button
-            id="startbutton"
-            hidden={this.state.streaming}
-            onClick={this.startStream}
-            className="text-red"
+      <div className='app'>
+          <video id='video'>Video stream not available.</video>
+          <p
+            hidden={!this.state.streaming || this.state.photos.length === this.state.photoQuantity}
           >
-              Enter Booth
-          </button>
-        </div>
-        <canvas hidden={true} id="canvas"/>
-        <div className="output">
+            {this.state.counter}
+          </p>
+          <div className='enter-booth-container'>
+            <h1
+              className='font-mono text-md text-grey-darkest text-center'
+            >
+              WebRTC Photo Booth
+            </h1>
+            <input
+              className='number-of-photos font-mono text-grey-darkest text-center'
+              placeholder='Enter Number Of Photos'
+              onChange={(e) => this.validatePhotoQuantity(e)}
+              hidden={this.state.streaming}
+            />
+            <p
+              className='error-message font-mono text-md text-red'
+            >
+              {this.state.errorMessage}
+            </p>
+            <button
+              id='startbutton'
+              hidden={this.state.streaming}
+              onClick={this.startStream}
+              className='font-mono text-md bg-teal hover:bg-teal-dark text-white mx-auto p-4 rounded'
+              disabled={!this.state.photoQuantity > 0 && this.state.photoQuantity <= 5}
+            >
+                Enter Photo Booth
+            </button>
+          </div>
+        <canvas hidden={true} id='canvas'/>
+        <div className='output'>
           <PhotoList photos={this.state.photos} countDown={this.countDown}/>
         </div>
       </div>
