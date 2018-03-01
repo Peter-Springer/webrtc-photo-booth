@@ -7,7 +7,7 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      width: 320,
+      width: 300,
       height: 0,
       streaming: false,
       photos: [],
@@ -98,15 +98,27 @@ class App extends Component {
   render() {
     return (
       <div className='app'>
-          <video id='video'>Video stream not available.</video>
-          <p
-            hidden={!this.state.streaming || this.state.photos.length === this.state.photoQuantity}
-          >
-            {this.state.counter}
-          </p>
+        <div className='video-container'>
+            <p
+            className='counter font-mono text-md text-grey-darkest'
+              hidden={!this.state.streaming || this.state.photos.length === this.state.photoQuantity}
+            >
+              {this.state.counter}
+            </p>
+            <video id='video' className={this.state.streaming ? 'video-capturing' : 'video-hidden'}>
+              Video stream not available.
+            </video>
+            <p
+              className='counter font-mono text-grey-darkest'
+              hidden={!this.state.streaming || this.state.photos.length === this.state.photoQuantity}
+            >
+              {this.state.counter}
+            </p>
+          </div>
           <div className='enter-booth-container'>
             <h1
               className='font-mono text-md text-grey-darkest text-center'
+              hidden={this.state.streaming}
             >
               WebRTC Photo Booth
             </h1>
