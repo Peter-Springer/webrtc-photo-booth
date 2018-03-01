@@ -64,7 +64,6 @@ class App extends Component {
   takePicture = () => {
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
-    const photo = document.getElementById('photo');
     const video = document.getElementById('video');
 
     if (this.state.width && this.state.height) {
@@ -88,6 +87,7 @@ class App extends Component {
             id="startbutton"
             hidden={this.state.streaming}
             onClick={this.startStream}
+            className="text-red"
           >
               Enter Booth
           </button>
