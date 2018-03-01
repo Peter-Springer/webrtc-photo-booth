@@ -35,13 +35,9 @@ body {
   font-size: 3rem;
 }
 
-.video-hidden {
-  border: none;
-}
-
 .video-capturing {
   border: 1.5rem solid #8b2a2a;
-  border-radius: 5px;
+  border-radius: 20%;
 }
 
 .output {
@@ -53,6 +49,16 @@ body {
 
 .captured-photo {
   border: 1.5rem solid #134450;
+}
+
+.new-photo-btn {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+a {
+    text-decoration: none;
 }
 /**
  * This injects Tailwind's base styles, which is a combination of

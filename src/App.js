@@ -1,29 +1,27 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { setPhotoQuantity } from './actions/index'
 
 class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      photoQuantity: 0,
       errorMessage: '',
     }
   }
 
   validatePhotoQuantity = (e) => {
     if (e.target.value === '') {
-      this.setState({ errorMessage: '', photoQuantity: '' })
+      this.props.setPhotoQuantity('')
+      this.setState({ errorMessage: '' })
     }
     else if (parseInt(e.target.value, 10) > 0 && parseInt(e.target.value, 10) <= 5) {
-        this.setState({
-                        photoQuantity: parseInt(e.target.value, 10),
-                        errorMessage: ''
-                      })
+      this.props.setPhotoQuantity(parseInt(e.target.value, 10))
+        this.setState({ errorMessage: '' })
     } else {
-      this.setState({
-                    photoQuantity: '',
-                    errorMessage: 'Enter a photo quantity between 1 and 5'
-                  })
+      this.props.setPhotoQuantity('')
+      this.setState({ errorMessage: 'Enter a photo quantity between 1 and 5' })
     }
   }
 
@@ -50,7 +48,7 @@ class App extends Component {
             <button
               id='startbutton'
               className='font-mono text-md bg-teal hover:bg-teal-dark text-white mx-auto p-4 rounded'
-              disabled={!this.state.photoQuantity > 0 && this.state.photoQuantity <= 5}
+              disabled={!this.props.photoQuantity > 0 && this.props.photoQuantity <= 5}
             >
                 Enter Photo Booth
             </button>
@@ -61,4 +59,14 @@ class App extends Component {
   }
 }
 
-export default App;
+const mapStateToProps = (state) => {
+  return {
+    photoQuantity: state.photoQuantity
+  };
+};
+
+const mapDispatchToProps = {
+ setPhotoQuantity,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

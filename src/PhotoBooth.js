@@ -1,7 +1,9 @@
 import React, {Component} from 'react'
 import PhotoList from './PhotoList'
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
-export default class PhotoBooth extends Component {
+class PhotoBooth extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -41,7 +43,7 @@ export default class PhotoBooth extends Component {
       if (this.state.counter > 0) {
         this.setState({ counter: this.state.counter - 1 })
       } else if (this.state.counter === 0) {
-        if (this.state.photos.length < this.state.photoQuantity) this.takePicture()
+        if (this.state.photos.length < this.props.photoQuantity) this.takePicture()
         this.setState({ counter: 5 })
       }
     }, 1000)
@@ -82,7 +84,7 @@ export default class PhotoBooth extends Component {
         <div className='video-container'>
             <p
             className='counter font-mono text-md text-grey-darkest'
-            hidden={this.state.photoQuantity === this.state.photos.length}
+            hidden={this.props.photoQuantity === this.state.photos.length}
             >
               {this.state.counter}
             </p>
@@ -91,11 +93,19 @@ export default class PhotoBooth extends Component {
             </video>
             <p
               className='counter font-mono text-grey-darkest'
-              hidden={this.state.photoQuantity === this.state.photos.length}
+              hidden={this.props.photoQuantity === this.state.photos.length}
             >
               {this.state.counter}
             </p>
         </div>
+        <Link to='/'>
+          <button
+            className='new-photo-btn font-mono text-md bg-teal hover:bg-teal-dark text-white mx-auto p-4 rounded'
+            hidden={this.props.photoQuantity !== this.state.photos.length}
+          >
+            Take New Photos
+          </button>
+        </Link>
         <canvas hidden={true} id='canvas'/>
         <div className='output'>
           <PhotoList photos={this.state.photos} countDown={this.countDown}/>
@@ -104,3 +114,11 @@ export default class PhotoBooth extends Component {
     )
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    photoQuantity: state.photoQuantity
+  };
+};
+
+export default connect(mapStateToProps)(PhotoBooth);
